@@ -1,0 +1,602 @@
+# -GM-
+新中和季租82-0
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中和季租82-0 選人大賽</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Bebas+Neue&display=swap');
+
+  :root {
+    --court: #C8873A;
+    --court-dark: #A06828;
+    --line: #fff;
+    --bg: #1a1a2e;
+    --card: #16213e;
+    --accent: #e94560;
+    --gold: #FFD700;
+    --silver: #C0C0C0;
+    --green: #00b894;
+    --text: #eee;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── COURT BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 80px),
+      repeating-linear-gradient(0deg,  rgba(255,255,255,.03) 0 1px, transparent 1px 80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .title-main {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.4rem, 10vw, 3.6rem);
+    letter-spacing: 4px;
+    color: var(--court);
+    text-shadow: 0 0 30px rgba(200,135,58,.5);
+    line-height: 1;
+  }
+  .title-sub {
+    font-size: .85rem;
+    color: rgba(255,255,255,.45);
+    letter-spacing: 6px;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+
+  /* ── ROUND INDICATOR ── */
+  .round-info {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .round-label {
+    font-size: .75rem;
+    color: rgba(255,255,255,.4);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .round-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    border-radius: 2px;
+    transition: width .5s ease;
+  }
+
+  /* ── PLAYER CARDS ── */
+  .cards-area {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .player-card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    padding: 18px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: transform .15s, border-color .15s, box-shadow .15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .player-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(200,135,58,.08), transparent);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .player-card:hover::before { opacity: 1; }
+  .player-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--court);
+    box-shadow: 0 8px 30px rgba(200,135,58,.25);
+  }
+  .player-card.selected {
+    border-color: var(--gold);
+    background: rgba(255,215,0,.08);
+    box-shadow: 0 0 20px rgba(255,215,0,.3);
+  }
+  .player-card.picked {
+    border-color: var(--green);
+    background: rgba(0,184,148,.08);
+    pointer-events: none;
+  }
+  .player-card.rejected {
+    opacity: .35;
+    pointer-events: none;
+    filter: grayscale(.8);
+  }
+
+  .jersey {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .player-info {
+    flex: 1;
+  }
+  .player-name {
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+  }
+  .player-pos {
+    font-size: .72rem;
+    color: rgba(255,255,255,.4);
+    margin-top: 2px;
+  }
+
+  .rating-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .rating-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    line-height: 1;
+  }
+  .rating-label {
+    font-size: .6rem;
+    color: rgba(255,255,255,.35);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .pick-tag {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .pick-tag.yours { background: var(--gold); color: #1a1a2e; }
+  .pick-tag.pass  { background: rgba(255,255,255,.1); color: rgba(255,255,255,.4); }
+
+  /* ── ROSTER ── */
+  .roster-section {
+    margin-bottom: 28px;
+  }
+  .section-title {
+    font-size: .7rem;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,.3);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,.1);
+  }
+
+  .roster-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .roster-chip {
+    background: rgba(255,215,0,.12);
+    border: 1px solid rgba(255,215,0,.3);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: .82rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .roster-chip .chip-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    color: var(--gold);
+  }
+
+  /* ── RESULT SCREEN ── */
+  #result-screen {
+    display: none;
+    text-align: center;
+    animation: fadeInUp .5s ease;
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .grade-badge {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    margin: 0 auto 20px;
+    box-shadow: 0 0 60px currentColor;
+  }
+
+  .result-avg {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    margin-bottom: 4px;
+  }
+  .result-avg-label {
+    font-size: .75rem;
+    color: rgba(255,255,255,.4);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .result-quote {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    background: rgba(255,255,255,.06);
+    border-left: 3px solid var(--court);
+    padding: 14px 20px;
+    border-radius: 0 12px 12px 0;
+    margin-bottom: 28px;
+    text-align: left;
+  }
+  .result-roster {
+    text-align: left;
+    margin-bottom: 28px;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 14px 36px;
+    border-radius: 100px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border: none;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn:hover { transform: scale(1.04); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--court), var(--accent));
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(233,69,96,.4);
+  }
+  .btn-secondary {
+    background: rgba(255,255,255,.08);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,.2);
+  }
+
+  /* jersey colours */
+  .jersey-S { background: linear-gradient(135deg, #e94560, #c0392b); color: #fff; }
+  .jersey-A { background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; }
+  .jersey-B { background: linear-gradient(135deg, #2980b9, #1abc9c); color: #fff; }
+  .jersey-C { background: linear-gradient(135deg, #8e44ad, #3498db); color: #fff; }
+  .jersey-D { background: linear-gradient(135deg, #27ae60, #2ecc71); color: #fff; }
+
+  /* rating colour */
+  .r-S { color: #e94560; }
+  .r-A { color: var(--gold); }
+  .r-B { color: #2ecc71; }
+  .r-C { color: #74b9ff; }
+  .r-D { color: rgba(255,255,255,.5); }
+
+  .confetti-emoji { font-size: 2rem; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="title-main">中和季租 82-0</div>
+    <div class="title-sub">選人大賽 · Draft Challenge</div>
+  </header>
+
+  <!-- DRAFT SCREEN -->
+  <div id="draft-screen">
+    <div class="round-info">
+      <div class="round-label">第 <span id="round-cur">1</span> / <span id="round-tot">5</span> 輪</div>
+      <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+    </div>
+
+    <div class="section-title">選擇一位球員</div>
+    <div class="cards-area" id="cards"></div>
+
+    <div class="roster-section" id="roster-section" style="display:none">
+      <div class="section-title">你的陣容</div>
+      <div class="roster-grid" id="roster-grid"></div>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="result-screen">
+    <div class="confetti-emoji" id="result-emoji"></div>
+    <div class="grade-badge" id="grade-badge"></div>
+    <div class="result-avg" id="result-avg"></div>
+    <div class="result-avg-label">隊伍平均分數</div>
+    <div class="result-quote" id="result-quote"></div>
+    <div class="result-roster">
+      <div class="section-title">最終陣容</div>
+      <div class="roster-grid" id="final-roster"></div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="restartGame()">🔄 再選一次</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PLAYERS = [
+  { name:'兆榮', score:55 },
+  { name:'尚賢', score:80 },
+  { name:'國耀', score:70 },
+  { name:'之均', score:71 },
+  { name:'小石', score:98 },
+  { name:'Billy', score:85 },
+  { name:'苡翔', score:98 },
+  { name:'正學', score:98 },
+  { name:'皮哥', score:72 },
+  { name:'世貞', score:90 },
+  { name:'浩宇', score:80 },
+  { name:'盧毅', score:58 },
+  { name:'和昇', score:75 },
+  { name:'則仁', score:98 },
+  { name:'懷寬', score:75 },
+  { name:'培源', score:68 },
+  { name:'欽洋', score:55 },
+  { name:'佳力', score:78 },
+  { name:'世旻', score:60 },
+  { name:'永賦', score:62 },
+  { name:'Ben', score:82 },
+  { name:'迺生', score:93 },
+  { name:'維倫', score:82 },
+  { name:'銘謙', score:83 },
+  { name:'柏霈', score:80 },
+  { name:'楷勳', score:86 },
+  { name:'瑋哲', score:79 },
+  { name:'TDG', score:90 },
+];
+
+const TOTAL_ROUNDS = 5;
+let round = 0;
+let roster = [];
+let pool = [];
+
+function getRatingClass(s) {
+  if (s >= 95) return 'S';
+  if (s >= 85) return 'A';
+  if (s >= 75) return 'B';
+  if (s >= 65) return 'C';
+  return 'D';
+}
+
+function getJerseyClass(s) {
+  if (s >= 95) return 'jersey-S';
+  if (s >= 85) return 'jersey-A';
+  if (s >= 75) return 'jersey-B';
+  if (s >= 65) return 'jersey-C';
+  return 'jersey-D';
+}
+
+function ratingLabel(s) {
+  if (s >= 95) return 'S 級';
+  if (s >= 85) return 'A 級';
+  if (s >= 75) return 'B 級';
+  if (s >= 65) return 'C 級';
+  return 'D 級';
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startGame() {
+  round = 0;
+  roster = [];
+  pool = shuffle([...PLAYERS]);
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('draft-screen').style.display = 'block';
+  document.getElementById('round-tot').textContent = TOTAL_ROUNDS;
+  document.getElementById('roster-section').style.display = 'none';
+  nextRound();
+}
+
+function nextRound() {
+  round++;
+  document.getElementById('round-cur').textContent = round;
+  document.getElementById('prog').style.width = ((round-1)/TOTAL_ROUNDS*100) + '%';
+
+  // pick 3 from remaining pool
+  const options = pool.splice(0, 3);
+  renderCards(options);
+  renderRoster();
+}
+
+function renderCards(options) {
+  const area = document.getElementById('cards');
+  area.innerHTML = '';
+  options.forEach(p => {
+    const rc = getRatingClass(p.score);
+    const jc = getJerseyClass(p.score);
+    const div = document.createElement('div');
+    div.className = 'player-card';
+    div.innerHTML = `
+      <div class="jersey ${jc}">${p.name.slice(0,2)}</div>
+      <div class="player-info">
+        <div class="player-name">${p.name}</div>
+        <div class="player-pos">${ratingLabel(p.score)}</div>
+      </div>
+      <div class="rating-badge">
+        <div class="rating-num r-${rc}">${p.score}</div>
+        <div class="rating-label">OVR</div>
+      </div>
+    `;
+    div.addEventListener('click', () => pick(p, options, div, area));
+    area.appendChild(div);
+  });
+}
+
+function pick(chosen, options, chosenEl, area) {
+  // disable all cards
+  area.querySelectorAll('.player-card').forEach(c => {
+    c.style.pointerEvents = 'none';
+  });
+
+  // mark chosen
+  chosenEl.classList.add('selected');
+  const pickTag = document.createElement('span');
+  pickTag.className = 'pick-tag yours';
+  pickTag.textContent = 'PICKED';
+  chosenEl.appendChild(pickTag);
+
+  // mark others
+  area.querySelectorAll('.player-card').forEach(c => {
+    if (c !== chosenEl) {
+      c.classList.add('rejected');
+    }
+  });
+
+  roster.push(chosen);
+
+  setTimeout(() => {
+    if (round >= TOTAL_ROUNDS) {
+      showResult();
+    } else {
+      nextRound();
+    }
+  }, 600);
+}
+
+function renderRoster() {
+  if (roster.length === 0) return;
+  document.getElementById('roster-section').style.display = 'block';
+  const grid = document.getElementById('roster-grid');
+  grid.innerHTML = '';
+  roster.forEach(p => {
+    const chip = document.createElement('div');
+    chip.className = 'roster-chip';
+    chip.innerHTML = `${p.name} <span class="chip-score">${p.score}</span>`;
+    grid.appendChild(chip);
+  });
+}
+
+function showResult() {
+  const avg = Math.round(roster.reduce((s, p) => s + p.score, 0) / roster.length);
+
+  let grade, color, emoji, quote;
+  if (avg >= 90) {
+    grade = 'A'; color = '#FFD700'; emoji = '🏆';
+    quote = '季租常勝軍，穩拿複賽冠軍';
+  } else if (avg >= 71) {
+    grade = 'B'; color = '#2ecc71'; emoji = '🥤';
+    quote = '沒有冠軍也有飲料';
+  } else if (avg >= 61) {
+    grade = 'C'; color = '#74b9ff'; emoji = '😅';
+    quote = '選的很好，下次別選了';
+  } else {
+    grade = 'D'; color = '#e74c3c'; emoji = '💀';
+    quote = '再試一次';
+  }
+
+  document.getElementById('draft-screen').style.display = 'none';
+  const rs = document.getElementById('result-screen');
+  rs.style.display = 'block';
+
+  document.getElementById('result-emoji').textContent = emoji;
+  const gb = document.getElementById('grade-badge');
+  gb.textContent = grade;
+  gb.style.background = color + '22';
+  gb.style.border = `3px solid ${color}`;
+  gb.style.color = color;
+
+  document.getElementById('result-avg').textContent = avg;
+  document.getElementById('result-avg').style.color = color;
+  document.getElementById('result-quote').textContent = quote;
+
+  const fr = document.getElementById('final-roster');
+  fr.innerHTML = '';
+  roster.forEach(p => {
+    const chip = document.createElement('div');
+    chip.className = 'roster-chip';
+    chip.innerHTML = `${p.name} <span class="chip-score">${p.score}</span>`;
+    fr.appendChild(chip);
+  });
+}
+
+function restartGame() {
+  startGame();
+}
+
+startGame();
+</script>
+</body>
+</html>
